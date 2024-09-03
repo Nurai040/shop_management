@@ -3,7 +3,8 @@ import sequelize from '../config/database'
 
 const Item = sequelize.define('Item', {
     plu: {
-        type: DataTypes.STRING,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
         allowNull: false,
     },
