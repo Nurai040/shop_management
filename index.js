@@ -4,6 +4,7 @@ import Item from './models/items';
 import Leftovers from './models/leftovers';
 import Shop from './models/shop';
 import sequelize from './config/database';
+import LeftoversHistory from './models/history';
 
 const app = express();
 
@@ -16,6 +17,8 @@ Item.hasMany(Leftovers, {foreignKey: 'plu'});
 Shop.hasMany(Leftovers, {foreignKey: 'id'});
 Leftovers.belongsTo(Item, {foreignKey: 'plu', targetKey: 'plu'});
 Leftovers.belongsTo(Shop, {foreignKey: 'shop_id', targetKey: 'id'});
+Leftovers.hasMany(LeftoversHistory, {foreignKey: 'id'});
+LeftoversHistory.belongsTo(Leftovers, {foreignKey: 'leftovers_id', targetKey: 'id'});
 
 try {
     await sequelize.authenticate();
