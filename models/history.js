@@ -1,28 +1,32 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../config/database";
 
-const LeftoversHistory = sequelize.define('LeftoversHistory', {
-    leftovers_id: {
+const History = sequelize.define('History', {
+    shop_id: {
         type: DataTypes.INTEGER,
-        references: {
-            model: 'Leftovers',
+        references:{
+            model: 'Shop',
             key: 'id',
         },
+        allowNull: true,
+    },
+    plu: {
+        type: DataTypes.UUID,
+        references: {
+            model: 'Item',
+            key: 'plu',
+        },
+        allowNull: true,
+    },
+    action:{
+        type: DataTypes.ENUM('Create Item', 'Create Leftover and Shop', 'Update Leftover Increase Shelf', 'Update Leftover Increase Order', 'Update Leftover Decrease Shelf', 'Update Leftover Decrease Order'),
         allowNull: false,
     },
-    number_on_shelf: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-    },
-    number_in_order: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-    },
-    timestamp: {
+    date: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
         allowNull: false,
     }
 });
 
-export default LeftoversHistory;
+export default History;

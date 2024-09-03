@@ -1,17 +1,30 @@
 import Item from "../models/items";
 import Leftovers from "../models/leftovers";
 import Shop from "../models/shop";
-import LeftoversHistory from "../models/history";
+import History from "../models/history";
 import sequelize from "../config/database";
 import { Op } from "sequelize";
 
 class ItemService {
 
     async createItem(data){
+        const transaction = sequelize.transaction();
         try {
-            const item = await Item.create({item_name: data});
+            const checkItem = await Item.findOne({where: {item_name: data}}, {transaction});
+            if(!checkItem){
+                throw new Error(`Item with this name-> ${data} already exists!`);
+            }
+            const item = await Item.create({item_name: data}, {transaction});
+
+            await History.create({
+                plu: item.plu,
+                action: 'Create Item',
+            }, {transaction});
+
+            await transaction.commit();
             return {success: true, message: item};
         } catch (error) {
+            await transaction.rollback();
             console.log('Error with creation of Item: ', error);
             return {success: false, message: 'Error on the server'};
         }
@@ -39,10 +52,10 @@ class ItemService {
                 number_in_order,
             },{transaction});
 
-            await LeftoversHistory.create({
-                leftovers_id: leftover.id,
-                number_on_shelf,
-                number_in_order,
+            await History.create({
+                shop_id: leftover.shop_id,
+                plu: leftover.plu,
+                action: 'Create Leftover and Shop',
             },{transaction});
 
             await transaction.commit();
@@ -66,10 +79,10 @@ class ItemService {
 
             const updatedLeftover = await Leftovers.update({number_on_shelf: newNum}, {where: {id: leftover.id}}, {transaction});
 
-            await LeftoversHistory.create({
-                leftovers_id: updatedLeftover.id,
-                number_in_order: updatedLeftover.number_in_order,
-                number_on_shelf: updatedLeftover.number_on_shelf,
+            await History.create({
+                shop_id: updatedLeftover.shop_id,
+                plu: updatedLeftover.plu,
+                action: 'Update Leftover Increase Shelf',
             }, {transaction});
 
             await transaction.commit();
@@ -93,10 +106,10 @@ class ItemService {
 
             const updatedLeftover = await Leftovers.update({number_in_order: newNum}, {where: {id: leftover.id}}, {transaction});
 
-            await LeftoversHistory.create({
-                leftovers_id: updatedLeftover.id,
-                number_in_order: updatedLeftover.number_in_order,
-                number_on_shelf: updatedLeftover.number_on_shelf,
+            await History.create({
+                shop_id: updatedLeftover.shop_id,
+                plu: updatedLeftover.plu,
+                action: 'Update Leftover Increase Order',
             }, {transaction});
 
             await transaction.commit();
@@ -124,10 +137,10 @@ class ItemService {
 
             const updatedLeftover = await Leftovers.update({number_on_shelf: newNum}, {where: {id: leftover.id}}, {transaction});
 
-            await LeftoversHistory.create({
-                leftovers_id: updatedLeftover.id,
-                number_in_order: updatedLeftover.number_in_order,
-                number_on_shelf: updatedLeftover.number_on_shelf,
+            await History.create({
+                shop_id: updatedLeftover.shop_id,
+                plu: updatedLeftover.plu,
+                action: 'Update Leftover Decrease Shelf',
             }, {transaction});
 
             await transaction.commit();
@@ -155,10 +168,10 @@ class ItemService {
 
             const updatedLeftover = await Leftovers.update({number_in_order: newNum}, {where: {id: leftover.id}}, {transaction});
 
-            await LeftoversHistory.create({
-                leftovers_id: updatedLeftover.id,
-                number_in_order: updatedLeftover.number_in_order,
-                number_on_shelf: updatedLeftover.number_on_shelf,
+            await History.create({
+                shop_id: updatedLeftover.shop_id,
+                plu: updatedLeftover.plu,
+                action: 'Update Leftover Decrease Order',
             }, {transaction});
 
             await transaction.commit();
