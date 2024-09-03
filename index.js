@@ -5,6 +5,8 @@ import Leftovers from './models/leftovers';
 import Shop from './models/shop';
 import sequelize from './config/database';
 import History from './models/history';
+import { itemRoute } from './routes/items';
+import { historyRoute } from './routes/history';
 
 const app = express();
 
@@ -32,6 +34,9 @@ try {
 sequelize.sync({alter: true}).then(()=>{
     console.log('The tables created successfully');
 });
+
+app.use('/', itemRoute());
+app.use('/', historyRoute());
 
 app.listen(port, ()=>{
     console.log(`The application is listening on port ${port}`);
