@@ -1,14 +1,14 @@
 import express from 'express';
-import ItemService from '../service/items';
+import ItemService from '../service/items.js';
 
 const route = express.Router();
 const itemsService = new ItemService();
 
-export const itemRoute = async()=>{
+export const itemRoute = ()=>{
     route.get('/items', async(req,res)=>{
         const result = await itemsService.getAllItems();
         if(result.success){
-            return res.status(201).json(result.message);
+            return res.status(200).json(result.message);
         } else{
             return res.status(500).json(result.message);
         }
@@ -27,7 +27,7 @@ export const itemRoute = async()=>{
     route.get('/leftovers', async(req,res)=>{
         const result = await itemsService.getAllLeftovers();
         if(result.success){
-            return res.status(201).json(result.message);
+            return res.status(200).json(result.message);
         } else{
             return res.status(500).json(result.message);
         }
@@ -45,7 +45,7 @@ export const itemRoute = async()=>{
     route.get('/shop', async(req,res)=>{
         const result = await itemsService.getAllShops();
         if(result.success){
-            return res.status(201).json(result.message);
+            return res.status(200).json(result.message);
         } else{
             return res.status(500).json(result.message);
         }
@@ -107,7 +107,7 @@ export const itemRoute = async()=>{
     route.get('/leftovers/filtered', async(req,res)=>{
         const result = await itemsService.filterLeftoverBy(req.query);
         if(result.success){
-            return res.status(201).json(result.message);
+            return res.status(200).json(result.message);
         } else{
             return res.status(500).json(result.message);
         }

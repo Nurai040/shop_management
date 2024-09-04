@@ -1,16 +1,16 @@
 import express from 'express';
 import 'dotenv/config';
-import Item from './models/items';
-import Leftovers from './models/leftovers';
-import Shop from './models/shop';
-import sequelize from './config/database';
-import History from './models/history';
-import { itemRoute } from './routes/items';
-import { historyRoute } from './routes/history';
+import Item from './models/items.js';
+import Leftovers from './models/leftovers.js';
+import Shop from './models/shop.js';
+import sequelize from './config/database.js';
+import History from './models/history.js';
+import {itemRoute} from './routes/items.js';
+import {historyRoute} from './routes/history.js';
 
 const app = express();
 
-const port = proccess.env.PORT || 3000;
+const port = process.env.PORT || 3000;
 
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());

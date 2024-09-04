@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize";
-import sequelize from "../config/database";
+import sequelize from "../config/database.js";
 
 const Leftovers = sequelize.define('Leftovers', {
     number_on_shelf: {

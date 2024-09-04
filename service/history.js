@@ -1,5 +1,5 @@
 import { Op } from "sequelize";
-import History from "../models/history";
+import History from "../models/history.js";
 
 class HistoryService {
     async getHistoryByFilter(filter){
@@ -23,7 +23,7 @@ class HistoryService {
             }
     
             const history = await History.findAll({
-                where: {query},
+                where: query,
                 limit: parseInt(limit),
                 offset: parseInt(offset),
             });

@@ -1,30 +1,26 @@
-import Item from "../models/items";
-import Leftovers from "../models/leftovers";
-import Shop from "../models/shop";
-import History from "../models/history";
-import sequelize from "../config/database";
+import Item from "../models/items.js";
+import Leftovers from "../models/leftovers.js";
+import Shop from "../models/shop.js";
+import History from "../models/history.js";
+import sequelize from "../config/database.js";
 import { Op } from "sequelize";
 
 class ItemService {
 
     async createItem(data){
-        const transaction = sequelize.transaction();
         try {
-            const checkItem = await Item.findOne({where: {item_name: data}}, {transaction});
-            if(!checkItem){
+            const checkItem = await Item.findOne({where: {item_name: data}});
+            if(checkItem){
                 throw new Error(`Item with this name-> ${data} already exists!`);
             }
-            const item = await Item.create({item_name: data}, {transaction});
+            const item = await Item.create({item_name: data});
 
             await History.create({
                 plu: item.plu,
                 action: 'Create Item',
-            }, {transaction});
-
-            await transaction.commit();
+            });
             return {success: true, message: item};
         } catch (error) {
-            await transaction.rollback();
             console.log('Error with creation of Item: ', error);
             return {success: false, message: 'Error on the server'};
         }
@@ -32,14 +28,13 @@ class ItemService {
 
     async createLeftover(data){
         const {shop_name, item_name, number_on_shelf, number_in_order} = data;
-        const transaction = sequelize.transaction();
         try {
-            let shop = await Shop.findOne({where: {shop_name}},{transaction});
+            let shop = await Shop.findOne({where: {shop_name}});
             if(!shop){
-                shop = await Shop.create({shop_name},{transaction});
+                shop = await Shop.create({shop_name});
             }
 
-            const item = await Item.findOne({where: {item_name}},{transaction});
+            const item = await Item.findOne({where: {item_name}});
 
             if(!item){
                 throw new Error('Item was not found!');
@@ -48,84 +43,72 @@ class ItemService {
             const leftover = await Leftovers.create({
                 shop_id: shop.id,
                 plu: item.plu,
-                number_on_shelf,
-                number_in_order,
-            },{transaction});
+                number_on_shelf: parseInt(number_on_shelf),
+                number_in_order: parseInt(number_in_order),
+            });
 
             await History.create({
                 shop_id: leftover.shop_id,
                 plu: leftover.plu,
                 action: 'Create Leftover and Shop',
-            },{transaction});
-
-            await transaction.commit();
+            });
 
             return {success: true, message: leftover};
         } catch (error) {
-            await transaction.rollback();
             console.log('Error with creation of Leftover: ', error);
             return {success: false, message: 'Error on the server'}; 
         }
     }
 
     async increaseLeftoverOnShelf(id, num){
-        const transaction = await sequelize.transaction();
         try {
-            const leftover = await Leftovers.findOne({where:{id}}, {transaction});
+            const leftover = await Leftovers.findOne({where:{id}});
             if(!leftover){
                 throw new Error('There is no leftover with thid id')
             }
             const newNum = num + leftover.number_on_shelf;
 
-            const updatedLeftover = await Leftovers.update({number_on_shelf: newNum}, {where: {id: leftover.id}}, {transaction});
+            const updatedLeftover = await Leftovers.update({number_on_shelf: newNum}, {where: {id: leftover.id}});
 
             await History.create({
                 shop_id: updatedLeftover.shop_id,
                 plu: updatedLeftover.plu,
                 action: 'Update Leftover Increase Shelf',
-            }, {transaction});
-
-            await transaction.commit();
+            });
 
             return {success: true, message: updatedLeftover};
         } catch (error) {
-            await transaction.rollback();
             console.log('Error with increasing of Leftover on shelf: ', error);
             return {success: false, message: 'Error on the server'}; 
         }
     }
 
     async increaseLeftoverInOrder(id, num){
-        const transaction = await sequelize.transaction();
         try {
-            const leftover = await Leftovers.findOne({where:{id}}, {transaction});
+            const leftover = await Leftovers.findOne({where:{id}});
             if(!leftover){
                 throw new Error('There is no leftover with thid id')
             }
             const newNum = num + leftover.number_in_order;
 
-            const updatedLeftover = await Leftovers.update({number_in_order: newNum}, {where: {id: leftover.id}}, {transaction});
+            const updatedLeftover = await Leftovers.update({number_in_order: newNum}, {where: {id: leftover.id}});
 
             await History.create({
                 shop_id: updatedLeftover.shop_id,
                 plu: updatedLeftover.plu,
                 action: 'Update Leftover Increase Order',
-            }, {transaction});
-
-            await transaction.commit();
+            });
 
             return {success: true, message: updatedLeftover};
         } catch (error) {
-            await transaction.rollback();
             console.log('Error with increasing of Leftover in order: ', error);
             return {success: false, message: 'Error on the server'}; 
         }
     }
 
     async decreaseLeftoverOnShelf(id, num){
-        const transaction = await sequelize.transaction();
         try {
-            const leftover = await Leftovers.findOne({where:{id}}, {transaction});
+            const leftover = await Leftovers.findOne({where:{id}});
             if(!leftover){
                 throw new Error('There is no leftover with thid id')
             }
@@ -135,28 +118,24 @@ class ItemService {
                 newNum = 0;
             }
 
-            const updatedLeftover = await Leftovers.update({number_on_shelf: newNum}, {where: {id: leftover.id}}, {transaction});
+            const updatedLeftover = await Leftovers.update({number_on_shelf: newNum}, {where: {id: leftover.id}});
 
             await History.create({
                 shop_id: updatedLeftover.shop_id,
                 plu: updatedLeftover.plu,
                 action: 'Update Leftover Decrease Shelf',
-            }, {transaction});
-
-            await transaction.commit();
+            });
 
             return {success: true, message: updatedLeftover};
         } catch (error) {
-            await transaction.rollback();
             console.log('Error with decreasing of Leftover on shelf: ', error);
             return {success: false, message: 'Error on the server'}; 
         }
     }
 
     async decreaseLeftoverInOrder(id, num){
-        const transaction = await sequelize.transaction();
         try {
-            const leftover = await Leftovers.findOne({where:{id}}, {transaction});
+            const leftover = await Leftovers.findOne({where:{id}});
             if(!leftover){
                 throw new Error('There is no leftover with thid id')
             }
@@ -166,19 +145,16 @@ class ItemService {
                 newNum = 0;
             }
 
-            const updatedLeftover = await Leftovers.update({number_in_order: newNum}, {where: {id: leftover.id}}, {transaction});
+            const updatedLeftover = await Leftovers.update({number_in_order: newNum}, {where: {id: leftover.id}});
 
             await History.create({
                 shop_id: updatedLeftover.shop_id,
                 plu: updatedLeftover.plu,
                 action: 'Update Leftover Decrease Order',
-            }, {transaction});
-
-            await transaction.commit();
+            });
 
             return {success: true, message: updatedLeftover};
         } catch (error) {
-            await transaction.rollback();
             console.log('Error with decreasing of Leftover in order: ', error);
             return {success: false, message: 'Error on the server'}; 
         }
